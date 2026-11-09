@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOM Writer · TG Team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: navy masthead; meeting register on the left; the minutes sheet as a paper page on the right */
+:root{
+  --bg:#eef1f6; --paper:#ffffff; --raise:#f7f9fc; --ink:#152036; --muted:#5f6b82; --line:#dde3ec; --line2:#c9d2df;
+  --mast:#10294d; --mast-ink:#eaf0fa; --mast-muted:#9fb2d0;
+  --accent:#1f5fc4; --accent-ink:#ffffff; --accent-soft:#e6eefb;
+  --gold:#b7801a; --gold-soft:#fbf2df;
+  --ok:#1b7a4b; --ok-soft:#e2f4ea; --bad:#b4271f; --bad-soft:#fce8e6;
+  --shadow:0 1px 2px rgba(16,41,77,.06),0 8px 24px rgba(16,41,77,.06);
+  --f-ui:"Anuphan",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --f-doc:"Sarabun","TH Sarabun New",Tahoma,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e131b; --paper:#171e29; --raise:#1c2431; --ink:#e7ecf4; --muted:#9aa6ba; --line:#2a3443; --line2:#38455a;
+  --mast:#0a1a33; --mast-ink:#e7eefb; --mast-muted:#8ea3c4;
+  --accent:#7aa6f0; --accent-ink:#0b1424; --accent-soft:#1f2e48;
+  --gold:#e3b45a; --gold-soft:#3a2d14;
+  --ok:#6fd09d; --ok-soft:#163325; --bad:#f2918a; --bad-soft:#3e1d1b;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --paper:#171e29; --raise:#1c2431; --ink:#e7ecf4; --muted:#9aa6ba; --line:#2a3443; --line2:#38455a;
+  --mast:#0a1a33; --mast-ink:#e7eefb; --mast-muted:#8ea3c4;
+  --accent:#7aa6f0; --accent-ink:#0b1424; --accent-soft:#1f2e48;
+  --gold:#e3b45a; --gold-soft:#3a2d14;
+  --ok:#6fd09d; --ok-soft:#163325; --bad:#f2918a; --bad-soft:#3e1d1b;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-ui);min-height:100vh}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.mast{background:var(--mast);color:var(--mast-ink);padding:14px max(20px,env(safe-area-inset-left,0px)) 14px max(20px,env(safe-area-inset-right,0px))}
+.mast-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+.seal{width:38px;height:38px;border-radius:10px;background:linear-gradient(145deg,#2c6fd6,#163e7d);display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.seal svg{width:22px;height:22px}
+.brand b{font:700 18px/1.1 var(--f-ui);letter-spacing:.01em;display:block}
+.brand small{color:var(--mast-muted);font-size:12.5px}
+.mbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--mast-ink);border-radius:9px;padding:7px 12px;cursor:pointer;font-weight:500;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.mbtn:hover{background:rgba(255,255,255,.16)}
+.mbtn.pri{background:#fff;color:#10294d;border-color:#fff;font-weight:600}
+.mbtn.pri:hover{background:#e8efff}
+
+/* shell */
+.shell{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:290px minmax(0,1fr);gap:22px;padding:22px max(20px,env(safe-area-inset-left,0px)) 60px max(20px,env(safe-area-inset-right,0px));align-items:start}
+@media (max-width:920px){.shell{grid-template-columns:minmax(0,1fr)}}
+.side{position:sticky;top:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+@media (max-width:920px){.side{position:static}}
+.search{position:relative}
+.search input{width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1px solid var(--line);background:var(--paper)}
+.search svg{position:absolute;left:11px;top:50%;translate:0 -50%;width:16px;height:16px;color:var(--muted)}
+.side h3{font:600 12px var(--f-ui);letter-spacing:.08em;color:var(--muted);margin:6px 2px 0;text-transform:uppercase;display:flex;justify-content:space-between}
+.list{display:flex;flex-direction:column;gap:6px;max-height:calc(100vh - 210px);overflow:auto;padding:2px}
+@media (max-width:920px){.list{max-height:260px}}
+.mi{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:10px;background:var(--paper);border:1px solid var(--line)}
+.mi:hover{border-color:var(--line2)}
+.mi.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.mi .t{font-weight:600;font-size:14.5px;overflow-wrap:anywhere;line-height:1.35}
+.mi .m{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.date{font-family:var(--f-mono);font-size:11.5px;font-variant-numeric:tabular-nums}
+.tag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;background:var(--raise);border:1px solid var(--line);color:var(--muted)}
+.tag.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.tag.gold{background:var(--gold-soft);color:var(--gold);border-color:transparent}
+.empty{padding:16px 12px;color:var(--muted);font-size:14px;border:1px dashed var(--line2);border-radius:10px;text-align:center}
+
+/* steps */
+.main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.steps{display:flex;gap:6px;background:var(--paper);border:1px solid var(--line);padding:5px;border-radius:12px;width:max-content;max-width:100%;flex-wrap:wrap}
+.step{all:unset;cursor:pointer;padding:7px 14px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.step .n{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;background:var(--raise);border:1px solid var(--line)}
+.step.on{background:var(--accent-soft);color:var(--accent)}
+.step.on .n{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.saved{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.saved i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+
+/* paper */
+.paper{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.doc-head{padding:26px 28px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,var(--raise),var(--paper))}
+.eyebrow{font:600 11.5px var(--f-ui);letter-spacing:.12em;color:var(--gold);text-transform:uppercase}
+.title-in{all:unset;box-sizing:border-box;width:100%;font:700 26px/1.3 var(--f-doc);color:var(--ink);border-bottom:2px dashed transparent;padding:2px 0}
+.title-in:focus{border-bottom-color:var(--accent-soft)}
+.title-in::placeholder{color:var(--line2)}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 14px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0;position:relative}
+.fld>span{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.inp,.fld input,.fld textarea,.fld select{width:100%;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 10px}
+.inp:hover,.fld input:hover,.fld textarea:hover{border-color:var(--line2)}
+textarea{resize:vertical;min-height:72px;line-height:1.6}
+.timepair{display:flex;gap:6px;align-items:center}
+.timepair input{flex:1}
+.mini-x{all:unset;cursor:pointer;color:var(--muted);font-size:12px;padding:0 4px;border-radius:5px;line-height:18px}
+.mini-x:hover{color:var(--bad);background:var(--bad-soft)}
+.addchips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted)}
+.chipbtn{all:unset;cursor:pointer;font-size:12.5px;padding:3px 10px;border-radius:99px;border:1px dashed var(--line2);color:var(--muted)}
+.chipbtn:hover{color:var(--accent);border-color:var(--accent)}
+
+.secs{padding:8px 28px 26px;display:flex;flex-direction:column}
+@media (max-width:640px){.doc-head{padding:20px 16px 14px}.secs{padding:6px 16px 20px}}
+.sec{border-bottom:1px solid var(--line);padding:18px 0}
+.sec:last-of-type{border-bottom:0}
+.sec-h{display:flex;align-items:center;gap:8px}
+.sec-n{font:600 13px var(--f-mono);color:var(--accent);min-width:26px}
+.sec-t{all:unset;flex:1;min-width:0;font:700 18px/1.35 var(--f-doc);padding:2px 4px;border-radius:6px}
+.sec-t:hover{background:var(--raise)}
+.sec-t:focus{background:var(--accent-soft)}
+.tools{display:flex;gap:2px;opacity:.55;transition:opacity .15s}
+.sec:hover .tools,.sec:focus-within .tools{opacity:1}
+.ib{all:unset;cursor:pointer;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--muted)}
+.ib:hover{background:var(--raise);color:var(--ink)}
+.ib.del:hover{background:var(--bad-soft);color:var(--bad)}
+.ib svg{width:16px;height:16px}
+.ib[disabled]{opacity:.3;pointer-events:none}
+.sec-b{padding:12px 0 0 34px;display:flex;flex-direction:column;gap:10px}
+@media (max-width:640px){.sec-b{padding-left:0}}
+.sec.collapsed .sec-b{display:none}
+.sec.collapsed .sec-h .rot svg{rotate:-90deg}
+.hint{font-size:12.5px;color:var(--muted)}
+
+.tbl{display:flex;flex-direction:column;gap:6px}
+.tr{display:grid;gap:6px;align-items:center}
+.tr.att{grid-template-columns:minmax(0,1.3fr) minmax(0,1.5fr) minmax(0,1fr) 128px 30px}
+.tr.act{grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) 148px 140px 30px}
+.tr.th{font-size:11.5px;color:var(--muted);letter-spacing:.03em;padding:0 2px}
+@media (max-width:760px){.tr.att,.tr.act{grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:8px;border:1px solid var(--line);border-radius:9px}.tr.th{display:none}.tr .ib{justify-self:end}}
+.tr input,.tr select{width:100%;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 9px;font-size:14px}
+.tr input.badmail{border-color:var(--bad);background:var(--bad-soft)}
+select.st-0{color:var(--muted)} select.st-1{color:var(--gold)} select.st-2{color:var(--ok)}
+.ag{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--raise)}
+.ag-h{display:flex;gap:8px;align-items:center}
+.ag-n{font:600 12.5px var(--f-ui);color:var(--accent);white-space:nowrap}
+.ag-h input{flex:1;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 10px;font-weight:600}
+.ag textarea{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 10px;width:100%}
+.res{border-left:3px solid var(--gold);padding-left:10px}
+.res span{color:var(--gold)!important;font-weight:600}
+.addrow{all:unset;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--accent);padding:6px 10px;border-radius:8px;width:max-content}
+.addrow:hover{background:var(--accent-soft)}
+
+.addsec{margin:6px 28px 26px;border:1.5px dashed var(--line2);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+@media (max-width:640px){.addsec{margin:6px 16px 20px}}
+.addsec .lbl{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{all:unset;cursor:pointer;font-size:13.5px;padding:6px 12px;border-radius:9px;background:var(--raise);border:1px solid var(--line)}
+.opt:hover{border-color:var(--accent);color:var(--accent)}
+
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid var(--line2);background:var(--paper);white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.pri:hover{filter:brightness(1.08);color:var(--accent-ink)}
+.btn.danger:hover{border-color:var(--bad);color:var(--bad)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn svg{width:16px;height:16px}
+
+/* send */
+.send{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:1100px){.send{grid-template-columns:minmax(0,1fr)}}
+.card{padding:18px;display:flex;flex-direction:column;gap:12px}
+.card h4{margin:0;font:700 15px var(--f-ui)}
+.rcpt{display:flex;flex-wrap:wrap;gap:6px}
+.rc{font:12.5px var(--f-mono);padding:3px 9px;border-radius:7px;background:var(--accent-soft);color:var(--accent);overflow-wrap:anywhere}
+.rc.bad{background:var(--bad-soft);color:var(--bad)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;cursor:pointer}
+.chk input{margin-top:4px}
+.methods{display:flex;flex-direction:column;gap:10px}
+.mth{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--paper)}
+.mth.rec{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.mth-h{display:flex;align-items:center;gap:10px}
+.mth-h .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+.mth-h .ic svg{width:18px;height:18px}
+.mth-h b{font-size:14.5px;display:block;line-height:1.3}
+.mth-h small{color:var(--muted);font-size:12.5px;line-height:1.4;display:block}
+.mth .row{display:flex;gap:8px;flex-wrap:wrap}
+.note{border-radius:10px;padding:10px 12px;font-size:13.5px;background:var(--accent-soft);color:var(--ink)}
+.note.ok{background:var(--ok-soft);color:var(--ok)} .note.bad{background:var(--bad-soft);color:var(--bad)} .note.gold{background:var(--gold-soft);color:var(--gold)}
+.note a{color:inherit;font-weight:700}
+.prev-wrap{padding:0;overflow:hidden}
+.prev-bar{padding:12px 18px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px;background:var(--raise)}
+.prev-bar b{color:var(--ink);font-weight:600}
+.prev{background:#fff;color:#152036;padding:26px;overflow-x:auto}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(8,16,30,.45);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{width:min(640px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+.modal h2{margin:0;font:700 19px var(--f-ui)}
+.modal ol{margin:0;padding-left:20px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.modal code{font-family:var(--f-mono);font-size:12px;background:var(--raise);padding:1px 5px;border-radius:5px;color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:22px;translate:-50% 0;background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:10px;display:flex;gap:14px;align-items:center;font-size:14px;box-shadow:var(--shadow);z-index:60;max-width:calc(100vw - 32px)}
+.toast button{all:unset;cursor:pointer;font-weight:700;color:var(--accent-soft);text-decoration:underline}
+.tpl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tplc{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--raise)}
+.tplc:hover{border-color:var(--accent)}
+.tplc b{font-size:14.5px} .tplc small{color:var(--muted);font-size:12.5px;line-height:1.45}
+
+#printArea{display:none}
+@media print{
+  body{background:#fff}
+  .mast,.shell,.toast,.scrim{display:none!important}
+  #printArea{display:block;color:#000;font-family:var(--f-doc)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="mast"><div class="mast-in">
+  <div class="brand">
+    <div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 15.5h5M10 8.5h2"/></svg></div>
+    <div><b>MOM Writer</b><small>บันทึกการประชุม · TG Team</small></div>
+  </div>
+  <button class="mbtn" data-act="backup" title="สำรองหรือกู้คืนข้อมูล">สำรองข้อมูล</button>
+  <button class="mbtn" data-act="settings">ตั้งค่า</button>
+  <button class="mbtn pri" data-act="new">+ MOM ใหม่</button>
+</div></header>
+
+<div class="shell">
+  <aside class="side">
+    <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="ค้นหาการประชุม ผู้เข้าร่วม" aria-label="ค้นหา"></label>
+    <h3><span>ทะเบียนการประชุม</span><span id="cnt"></span></h3>
+    <div class="list" id="list"></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+
+<div id="printArea"></div>
+<div id="layer"></div>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+
+<script>
+(function(){
+"use strict";
+/* ============ helpers ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const EMAIL=/^[^\s@,;<>()]+@[^\s@,;<>()]+\.[^\s@,;<>()]{2,}$/;
+const pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const thDate=v=>{if(!v)return '';const d=new Date(v+'T00:00:00');return isNaN(d)?v:d.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})};
+const thShort=v=>{if(!v)return '';const d=new Date(v+'T00:00:00');return isNaN(d)?v:d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})};
+const clock=ms=>new Date(ms).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+const STATUS=['ยังไม่เริ่ม','กำลังดำเนินการ','เสร็จแล้ว'];
+const IS_FILE=location.protocol==='file:';
+const I={
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 15 6-6 6 6"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  web:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M12 11v6M9 14l3 3 3-3"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>'
+};
+
+/* ============ storage ============ */
+const LS='momwriter.v1';
+const DEF_SET={senderName:'',closing:'ขอแสดงความนับถือ',replyNote:'หากมีข้อแก้ไขหรือข้อเพิ่มเติม กรุณาแจ้งกลับภายใน 2 วันทำการ',clientId:''};
+let store=(()=>{try{const s=JSON.parse(localStorage.getItem(LS));if(s&&Array.isArray(s.moms))return{moms:s.moms,settings:Object.assign({},DEF_SET,s.settings||{})}}catch(e){}return{moms:[],settings:Object.assign({},DEF_SET)}})();
+let savedAt=0, saveErr='';
+let saveT;
+function persist(now){clearTimeout(saveT);const run=()=>{try{localStorage.setItem(LS,JSON.stringify(store));savedAt=Date.now();saveErr=''}catch(e){saveErr='บันทึกลงเบราว์เซอร์ไม่ได้ (พื้นที่เต็มหรือถูกปิดกั้น) กรุณาสำรองข้อมูลเป็นไฟล์'}updSaved();renderList()};now?run():saveT=setTimeout(run,450)}
+function updSaved(){const el=$('#saved');if(!el)return;el.innerHTML=saveErr?`<span style="color:var(--bad)">${esc(saveErr)}</span>`:savedAt?`<i></i>บันทึกอัตโนมัติ ${clock(savedAt)} น.`:'<i></i>บันทึกอัตโนมัติในเครื่องนี้'}
+
+/* ============ model ============ */
+const att=()=>({name:'',email:'',role:'',present:true});
+const agi=(topic='')=>({topic,discussion:'',resolution:''});
+const act=()=>({task:'',owner:'',due:'',status:STATUS[0]});
+const SEC={
+  attendees:(t='ผู้เข้าร่วมประชุม')=>({id:uid(),type:'attendees',title:t,items:[att(),att()]}),
+  agenda:(t='วาระการประชุมและมติ',topics)=>({id:uid(),type:'agenda',title:t,items:(topics||['']).map(agi)}),
+  actions:(t='งานที่ต้องดำเนินการ')=>({id:uid(),type:'actions',title:t,items:[act()]}),
+  text:(t='หัวข้อใหม่',text='')=>({id:uid(),type:'text',title:t,text})
+};
+const META=[['time','เวลา'],['location','สถานที่ / ช่องทาง'],['chair','ประธานการประชุม'],['recorder','ผู้จดบันทึก'],['reviewer','ผู้ตรวจรายงาน']];
+const TEMPLATES={
+  team:{name:'ประชุมทีมทั่วไป',desc:'ผู้เข้าร่วม วาระและมติ งานที่ต้องทำ นัดครั้งถัดไป',
+    make:()=>({show:{time:true,location:true,chair:true,recorder:true,reviewer:false},sections:[SEC.attendees(),SEC.agenda(),SEC.actions(),SEC.text('นัดประชุมครั้งถัดไป'),SEC.text('หมายเหตุ')]})},
+  formal:{name:'รายงานการประชุมแบบทางการ',desc:'5 ระเบียบวาระตามแบบราชการ พร้อมผู้ตรวจรายงาน',
+    make:()=>({show:{time:true,location:true,chair:true,recorder:true,reviewer:true},sections:[SEC.attendees('ผู้มาประชุม'),SEC.agenda('ระเบียบวาระการประชุม',['เรื่องที่ประธานแจ้งให้ที่ประชุมทราบ','รับรองรายงานการประชุมครั้งที่แล้ว','เรื่องสืบเนื่องจากการประชุมครั้งที่แล้ว','เรื่องเพื่อพิจารณา','เรื่องอื่น ๆ']),SEC.actions('สรุปงานที่มอบหมาย')]})},
+  quick:{name:'สรุปสั้น',desc:'ผู้เข้าร่วม ประเด็นสำคัญ และงานที่ต้องทำ',
+    make:()=>({show:{time:false,location:false,chair:false,recorder:true,reviewer:false},sections:[SEC.attendees(),SEC.text('ประเด็นสำคัญ'),SEC.actions()]})},
+  blank:{name:'เริ่มจากหน้าว่าง',desc:'มีแค่ชื่อและวันที่ เพิ่มหัวข้อเองทีละส่วน',
+    make:()=>({show:{time:false,location:false,chair:false,recorder:false,reviewer:false},sections:[]})}
+};
+function newMom(tpl){const t=TEMPLATES[tpl]||TEMPLATES.team;const b=t.make();
+  return Object.assign({id:uid(),title:'',date:today(),timeStart:'',timeEnd:'',location:'',chair:'',recorder:store.settings.senderName||'',reviewer:'',
+    extraTo:'',cc:'',subject:'',includeAbsent:true,status:'draft',draftedAt:0,draftVia:'',createdAt:Date.now(),updatedAt:Date.now()},b)}
+
+let curId=store.moms[0]?.id||null, view='write', q='', flash=null, undo=null, toastT;
+const cur=()=>store.moms.find(m=>m.id===curId)||null;
+function touch(){const m=cur();if(m)m.updatedAt=Date.now();persist()}
+
+/* ============ sidebar ============ */
+function renderList(){
+  const k=q.trim().toLowerCase();
+  const all=[...store.moms].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.updatedAt-a.updatedAt);
+  const rows=all.filter(m=>!k||(m.title||'').toLowerCase().includes(k)||m.sections.some(s=>s.type==='attendees'&&s.items.some(a=>(a.name+' '+a.email).toLowerCase().includes(k))));
+  $('#cnt').textContent=store.moms.length?store.moms.length+' รายการ':'';
+  const el=$('#list');
+  if(!store.moms.length){el.innerHTML='<div class="empty">ยังไม่มีบันทึกการประชุม<br>กด <b>+ MOM ใหม่</b> เพื่อเริ่ม</div>';return}
+  if(!rows.length){el.innerHTML='<div class="empty">ไม่พบการประชุมที่ตรงกับคำค้น</div>';return}
+  el.innerHTML=rows.map(m=>{const open=m.sections.filter(s=>s.type==='actions').reduce((n,s)=>n+s.items.filter(a=>a.task&&a.status!==STATUS[2]).length,0);
+    return `<button class="mi${m.id===curId?' on':''}" data-open="${m.id}"><span class="t">${esc(m.title||'(ยังไม่ตั้งชื่อ)')}</span>
+    <span class="m"><span class="date">${esc(thShort(m.date))}</span>${m.draftedAt?'<span class="tag ok">ร่างอีเมลแล้ว</span>':'<span class="tag">กำลังเขียน</span>'}${open?`<span class="tag gold">งานค้าง ${open}</span>`:''}</span></button>`}).join('');
+}
+$('#list').addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;curId=b.dataset.open;view='write';flash=null;render();window.scrollTo({top:0,behavior:'smooth'})});
+$('#q').addEventListener('input',e=>{q=e.target.value;renderList()});
+
+/* ============ main ============ */
+function render(){renderList();renderMain()}
+function renderMain(){
+  const m=cur(), el=$('#main');
+  if(!m){el.innerHTML=`<div class="paper card" style="padding:28px;gap:16px"><div><div class="eyebrow">เริ่มต้น</div><h2 style="margin:4px 0 0;font:700 22px var(--f-doc)">เลือกรูปแบบบันทึกการประชุม</h2><p class="hint" style="margin:4px 0 0">ทุกหัวข้อลบ เพิ่ม เปลี่ยนชื่อ หรือสลับลำดับได้ภายหลัง</p></div>${tplCards()}</div>`;return}
+  const steps=`<div class="toprow"><div class="steps" role="tablist">
+    <button class="step${view==='write'?' on':''}" data-act="view" data-v="write" role="tab"><span class="n">1</span>เขียน MOM</button>
+    <button class="step${view==='send'?' on':''}" data-act="view" data-v="send" role="tab"><span class="n">2</span>ตรวจและร่างอีเมล</button></div>
+    <span class="saved" id="saved"></span></div>`;
+  el.innerHTML=steps+(view==='write'?writeView(m):sendView(m));
+  updSaved();
+  if(view==='send'&&store.settings.clientId&&!IS_FILE)loadGis().catch(()=>{});
+}
+function tplCards(){return `<div class="tpl">${Object.entries(TEMPLATES).map(([k,t])=>`<button class="tplc" data-act="create" data-tpl="${k}"><b>${esc(t.name)}</b><small>${esc(t.desc)}</small></button>`).join('')}</div>`}
+
+function metaField(m,k,label){
+  const x=`<button class="mini-x" data-act="hide-meta" data-m="${k}" title="นำช่องนี้ออก">นำออก</button>`;
+  if(k==='time')return `<div class="fld"><span>${label}${x}</span><div class="timepair"><input type="time" data-f="timeStart" value="${esc(m.timeStart)}" aria-label="เวลาเริ่ม"><span class="hint">ถึง</span><input type="time" data-f="timeEnd" value="${esc(m.timeEnd)}" aria-label="เวลาเลิก"></div></div>`;
+  const ph={location:'ห้องประชุม 3 / Google Meet',chair:'ชื่อประธาน',recorder:'ชื่อผู้จดบันทึก',reviewer:'ชื่อผู้ตรวจรายงาน'}[k];
+  return `<div class="fld"><span>${label}${x}</span><input data-f="${k}" value="${esc(m[k])}" placeholder="${ph}" list="ppl" aria-label="${label}"></div>`;
+}
+function writeView(m){
+  const hidden=META.filter(([k])=>!m.show[k]);
+  const people=[...new Set(m.sections.filter(s=>s.type==='attendees').flatMap(s=>s.items.map(a=>a.name)).filter(Boolean))];
+  const head=`<div class="doc-head">
+    <div class="eyebrow">บันทึกการประชุม · Minutes of Meeting</div>
+    <input class="title-in" data-f="title" value="${esc(m.title)}" placeholder="ชื่อการประชุม เช่น ประชุมติดตามโครงการ ครั้งที่ 12/2569" aria-label="ชื่อการประชุม">
+    <div class="meta"><label class="fld"><span>วันที่ประชุม</span><input type="date" data-f="date" value="${esc(m.date)}"></label>
+      ${META.filter(([k])=>m.show[k]).map(([k,l])=>metaField(m,k,l)).join('')}</div>
+    ${hidden.length?`<div class="addchips">เพิ่มช่อง:${hidden.map(([k,l])=>`<button class="chipbtn" data-act="show-meta" data-m="${k}">+ ${l}</button>`).join('')}</div>`:''}
+  </div>`;
+  const secs=m.sections.map((s,i)=>secHtml(s,i,m.sections.length)).join('');
+  const has=t=>m.sections.some(s=>s.type===t);
+  const opts=[
+    !has('attendees')&&['attendees','ผู้เข้าร่วมประชุม'],
+    ['agenda','วาระและมติ'],
+    ['actions','งานที่ต้องดำเนินการ'],
+    ['text','เรื่องแจ้งเพื่อทราบ'],
+    ['text','นัดประชุมครั้งถัดไป'],
+    ['text','หมายเหตุ'],
+    ['text','หัวข้อใหม่','กำหนดเอง…']
+  ].filter(Boolean);
+  const add=`<div class="addsec"><div class="lbl">+ เพิ่มหัวข้อ</div><div class="opts">${opts.map(o=>`<button class="opt" data-act="add-sec" data-type="${o[0]}" data-title="${esc(o[1])}">${esc(o[2]||o[1])}</button>`).join('')}</div></div>`;
+  const foot=`<div class="foot"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger" data-act="del-mom">${I.trash}ลบ MOM นี้</button><button class="btn" data-act="dup">ทำสำเนาเป็นการประชุมใหม่</button></div>
+    <button class="btn pri" data-act="view" data-v="send">ถัดไป: ตรวจและร่างอีเมล →</button></div>`;
+  return `${flashHtml()}<div class="paper">${head}<div class="secs">${secs||'<div class="hint" style="padding:18px 0">ยังไม่มีหัวข้อ เลือกเพิ่มได้ด้านล่าง</div>'}</div>${add}</div>${foot}
+  <datalist id="ppl">${people.map(p=>`<option value="${esc(p)}">`).join('')}</datalist>`;
+}
+function secHtml(s,i,n){
+  let body='';
+  if(s.type==='attendees'){
+    body=`<div class="tbl"><div class="tr att th"><span>ชื่อ-สกุล</span><span>อีเมล (ใช้ส่ง MOM)</span><span>ตำแหน่ง / หน่วยงาน</span><span>การเข้าร่วม</span><span></span></div>
+    ${s.items.map((a,j)=>`<div class="tr att">
+      <input data-s="${i}" data-i="${j}" data-k="name" value="${esc(a.name)}" placeholder="ชื่อ-สกุล" aria-label="ชื่อ">
+      <input data-s="${i}" data-i="${j}" data-k="email" type="email" value="${esc(a.email)}" placeholder="name@tgfone.com" aria-label="อีเมล" class="${a.email&&!EMAIL.test(a.email.trim())?'badmail':''}">
+      <input data-s="${i}" data-i="${j}" data-k="role" value="${esc(a.role)}" placeholder="ตำแหน่ง" aria-label="ตำแหน่ง">
+      <select data-s="${i}" data-i="${j}" data-k="present" aria-label="การเข้าร่วม"><option value="1"${a.present?' selected':''}>เข้าร่วม</option><option value="0"${a.present?'':' selected'}>ไม่ได้เข้าร่วม</option></select>
+      <button class="ib del" data-act="item-del" data-s="${i}" data-i="${j}" title="ลบแถว" aria-label="ลบแถว">${I.x}</button></div>`).join('')}</div>
+    <button class="addrow" data-act="item-add" data-s="${i}">+ เพิ่มผู้เข้าร่วม</button>`;
+  }else if(s.type==='agenda'){
+    body=s.items.map((a,j)=>`<div class="ag"><div class="ag-h"><span class="ag-n">วาระที่ ${j+1}</span>
+      <input data-s="${i}" data-i="${j}" data-k="topic" value="${esc(a.topic)}" placeholder="หัวข้อวาระ" aria-label="หัวข้อวาระ">
+      <button class="ib del" data-act="item-del" data-s="${i}" data-i="${j}" title="ลบวาระ" aria-label="ลบวาระ">${I.x}</button></div>
+      <label class="fld"><span>สรุปการหารือ</span><textarea data-s="${i}" data-i="${j}" data-k="discussion" placeholder="ประเด็นที่หารือ ข้อมูลที่นำเสนอ">${esc(a.discussion)}</textarea></label>
+      <label class="fld res"><span>มติที่ประชุม</span><textarea data-s="${i}" data-i="${j}" data-k="resolution" rows="2" style="min-height:52px" placeholder="เช่น ที่ประชุมรับทราบ / อนุมัติ / มอบหมายให้…">${esc(a.resolution)}</textarea></label></div>`).join('')
+      +`<button class="addrow" data-act="item-add" data-s="${i}">+ เพิ่มวาระ</button>`;
+  }else if(s.type==='actions'){
+    body=`<div class="tbl"><div class="tr act th"><span>สิ่งที่ต้องทำ</span><span>ผู้รับผิดชอบ</span><span>กำหนดเสร็จ</span><span>สถานะ</span><span></span></div>
+    ${s.items.map((a,j)=>`<div class="tr act">
+      <input data-s="${i}" data-i="${j}" data-k="task" value="${esc(a.task)}" placeholder="สิ่งที่ต้องทำ" aria-label="งาน">
+      <input data-s="${i}" data-i="${j}" data-k="owner" value="${esc(a.owner)}" placeholder="ผู้รับผิดชอบ" list="ppl" aria-label="ผู้รับผิดชอบ">
+      <input data-s="${i}" data-i="${j}" data-k="due" type="date" value="${esc(a.due)}" aria-label="กำหนดเสร็จ">
+      <select data-s="${i}" data-i="${j}" data-k="status" class="st-${Math.max(0,STATUS.indexOf(a.status))}" aria-label="สถานะ">${STATUS.map(x=>`<option${x===a.status?' selected':''}>${x}</option>`).join('')}</select>
+      <button class="ib del" data-act="item-del" data-s="${i}" data-i="${j}" title="ลบงาน" aria-label="ลบงาน">${I.x}</button></div>`).join('')}</div>
+    <button class="addrow" data-act="item-add" data-s="${i}">+ เพิ่มงาน</button>`;
+  }else{
+    body=`<textarea data-s="${i}" data-k="text" placeholder="พิมพ์รายละเอียด (ปล่อยว่างได้ หัวข้อที่ว่างจะไม่ถูกใส่ในอีเมล)" aria-label="${esc(s.title)}">${esc(s.text)}</textarea>`;
+  }
+  return `<section class="sec${s.collapsed?' collapsed':''}"><div class="sec-h">
+    <span class="sec-n">${pad(i+1)}</span>
+    <input class="sec-t" data-s="${i}" data-k="title" value="${esc(s.title)}" aria-label="ชื่อหัวข้อ" title="คลิกเพื่อเปลี่ยนชื่อหัวข้อ">
+    <div class="tools">
+      <button class="ib" data-act="sec-up" data-s="${i}" title="เลื่อนขึ้น" aria-label="เลื่อนขึ้น"${i===0?' disabled':''}>${I.up}</button>
+      <button class="ib" data-act="sec-down" data-s="${i}" title="เลื่อนลง" aria-label="เลื่อนลง"${i===n-1?' disabled':''}>${I.down}</button>
+      <button class="ib rot" data-act="sec-fold" data-s="${i}" title="ย่อ/ขยาย" aria-label="ย่อหรือขยาย">${I.down}</button>
+      <button class="ib del" data-act="sec-del" data-s="${i}" title="นำหัวข้อนี้ออก" aria-label="นำหัวข้อนี้ออก">${I.trash}</button>
+    </div></div><div class="sec-b">${body}</div></section>`;
+}
+function flashHtml(){return flash?`<div class="note ${flash.kind}">${flash.html}</div>`:''}
+
+/* ---- send view ---- */
+function recipients(m){
+  const pool=[];m.sections.filter(s=>s.type==='attendees').forEach(s=>s.items.forEach(a=>{if(a.email.trim()&&(m.includeAbsent||a.present))pool.push(a.email.trim())}));
+  (m.extraTo||'').split(/[,;\s]+/).filter(Boolean).forEach(e=>pool.push(e));
+  const bad=pool.filter(e=>!EMAIL.test(e));const to=[...new Set(pool.filter(e=>EMAIL.test(e)).map(e=>e.toLowerCase()))];
+  const ccRaw=(m.cc||'').split(/[,;\s]+/).filter(Boolean);ccRaw.filter(e=>!EMAIL.test(e)).forEach(e=>bad.push(e));
+  const cc=[...new Set(ccRaw.filter(e=>EMAIL.test(e)).map(e=>e.toLowerCase()).filter(e=>!to.includes(e)))];
+  return{to,cc,bad};
+}
+const autoSubject=m=>`สรุปการประชุม (MOM): ${m.title||'(ยังไม่ตั้งชื่อ)'}${m.date?' – '+thShort(m.date):''}`;
+const subjectOf=m=>(m.subject||'').trim()||autoSubject(m);
+function sendView(m){
+  const r=recipients(m), api=!!store.settings.clientId;
+  const hasAtt=m.sections.some(s=>s.type==='attendees');
+  const left=`<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="paper card"><h4>ผู้รับ</h4>
+    <div class="rcpt">${r.to.map(e=>`<span class="rc">${esc(e)}</span>`).join('')}${r.bad.map(e=>`<span class="rc bad" title="รูปแบบอีเมลไม่ถูกต้อง">${esc(e)}</span>`).join('')}${!r.to.length&&!r.bad.length?'<span class="hint">ยังไม่มีผู้รับ ใส่อีเมลในหัวข้อผู้เข้าร่วม หรือพิมพ์เพิ่มด้านล่าง</span>':''}</div>
+    ${hasAtt?`<label class="chk"><input type="checkbox" data-f="includeAbsent"${m.includeAbsent?' checked':''}> ส่งถึงผู้ที่ไม่ได้เข้าร่วมด้วย เพื่อรับทราบ</label>`:''}
+    <label class="fld"><span>ถึง (เพิ่มเติม)</span><input data-f="extraTo" value="${esc(m.extraTo)}" placeholder="คั่นหลายอีเมลด้วย ,"></label>
+    <label class="fld"><span>สำเนาถึง (CC)</span><input data-f="cc" value="${esc(m.cc)}" placeholder="manager@tgfone.com"></label>
+    <label class="fld"><span>หัวเรื่อง</span><input data-f="subject" value="${esc(m.subject)}" placeholder="${esc(autoSubject(m))}"></label>
+  </div>
+  <div class="paper card"><h4>ร่างอีเมล</h4>${flashHtml()}
+    <div class="methods">
+      <div class="mth${api?' rec':''}"><div class="mth-h"><span class="ic">${I.mail}</span><div><b>สร้างร่างใน Gmail อัตโนมัติ</b><small>${api?'ร่างจะไปอยู่ในโฟลเดอร์ฉบับร่างของ Gmail พร้อมรูปแบบครบ':'ต้องตั้งค่า Google Client ID ครั้งแรกครั้งเดียว'}</small></div></div>
+        <div class="row">${api?`<button class="btn pri" data-act="m-api">${I.mail}สร้างร่างใน Gmail</button>`:`<button class="btn" data-act="settings">ตั้งค่าการเชื่อมต่อ Gmail</button>`}</div></div>
+      <div class="mth${api?'':' rec'}"><div class="mth-h"><span class="ic">${I.web}</span><div><b>เปิดหน้าเขียนอีเมลพร้อมเนื้อหา</b><small>เปิดหน้าเขียนอีเมลพร้อมผู้รับและหัวเรื่อง เนื้อหาถูกคัดลอกไว้แล้ว กด Ctrl+V ในช่องข้อความ</small></div></div>
+        <div class="row"><button class="btn${api?'':' pri'}" data-act="m-web" data-w="gmail">Gmail</button><button class="btn" data-act="m-web" data-w="outlook">Outlook บนเว็บ</button></div></div>
+      <div class="mth"><div class="mth-h"><span class="ic">${I.file}</span><div><b>ดาวน์โหลดเป็นไฟล์ร่างอีเมล (.eml)</b><small>ดับเบิลคลิกไฟล์เพื่อเปิดเป็นร่างใน Outlook, Thunderbird หรือ Apple Mail</small></div></div>
+        <div class="row"><button class="btn" data-act="m-eml">${I.file}ดาวน์โหลด .eml</button></div></div>
+      <div class="mth"><div class="mth-h"><span class="ic">${I.copy}</span><div><b>คัดลอก หรือพิมพ์</b><small>คัดลอกพร้อมรูปแบบไปวางที่อื่น หรือพิมพ์เป็น PDF เพื่อเก็บเข้าแฟ้ม</small></div></div>
+        <div class="row"><button class="btn" data-act="m-copy">${I.copy}คัดลอกพร้อมรูปแบบ</button><button class="btn" data-act="m-print">พิมพ์ / PDF</button></div></div>
+    </div></div></div>`;
+  const right=`<div class="paper prev-wrap"><div class="prev-bar"><span>ถึง: <b>${esc(r.to.join(', ')||'–')}</b></span>${r.cc.length?`<span>สำเนา: <b>${esc(r.cc.join(', '))}</b></span>`:''}<span>เรื่อง: <b>${esc(subjectOf(m))}</b></span></div><div class="prev" id="prev">${emailHtml(m)}</div></div>`;
+  return `<div class="send">${left}${right}</div><div class="foot"><button class="btn" data-act="view" data-v="write">← กลับไปแก้ไข</button>${m.draftedAt?`<span class="saved">ร่างอีเมลล่าสุด ${esc(new Date(m.draftedAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'}))} · ${esc(m.draftVia)}</span>`:''}</div>`;
+}
+
+/* ============ email content ============ */
+function hasContent(s){if(s.type==='text')return !!s.text.trim();
+  if(s.type==='attendees')return s.items.some(a=>a.name.trim());
+  if(s.type==='agenda')return s.items.some(a=>a.topic||a.discussion||a.resolution);
+  if(s.type==='actions')return s.items.some(a=>a.task.trim());return false}
+function metaRows(m){const r=[['วันที่',thDate(m.date)]];
+  if(m.show.time&&m.timeStart)r.push(['เวลา',m.timeStart+(m.timeEnd?' – '+m.timeEnd:'')+' น.']);
+  [['location','สถานที่'],['chair','ประธาน'],['recorder','ผู้จดบันทึก'],['reviewer','ผู้ตรวจรายงาน']].forEach(([k,l])=>{if(m.show[k]&&m[k].trim())r.push([l,m[k]])});
+  return r.filter(x=>x[1])}
+function emailHtml(m,opt={}){
+  const S=store.settings, F="font-family:Sarabun,'TH Sarabun New',Tahoma,Arial,sans-serif";
+  const H=`${F};font-size:16px;font-weight:700;color:#10294d;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid #e6eefb`;
+  const th='text-align:left;background:#10294d;color:#ffffff;padding:7px 10px;font-size:13px;font-weight:600';
+  const td='padding:7px 10px;border-bottom:1px solid #dde3ec;vertical-align:top;font-size:14px';
+  const out=[];
+  if(!opt.print){out.push(`<p style="margin:0 0 10px">เรียน ผู้เข้าร่วมประชุมทุกท่าน</p><p style="margin:0 0 16px">ขอส่งสรุปการประชุม <b>${esc(m.title||'(ยังไม่ตั้งชื่อ)')}</b> เพื่อโปรดทราบ รายละเอียดดังนี้</p>`)}
+  else out.push(`<div style="text-align:center;margin-bottom:14px"><div style="font-size:20px;font-weight:700">รายงานการประชุม</div><div style="font-size:18px;font-weight:600">${esc(m.title||'')}</div></div>`);
+  out.push(`<table role="presentation" style="border-collapse:collapse;background:#f4f7fc;border-radius:8px;margin:0 0 6px"><tbody>${metaRows(m).map(r=>`<tr><td style="padding:5px 18px 5px 14px;color:#5f6b82;font-size:13px;white-space:nowrap">${esc(r[0])}</td><td style="padding:5px 14px 5px 0;font-size:14px;font-weight:600">${esc(r[1])}</td></tr>`).join('')}</tbody></table>`);
+  m.sections.filter(hasContent).forEach(s=>{
+    out.push(`<div style="${H}">${esc(s.title)}</div>`);
+    if(s.type==='attendees'){const p=s.items.filter(a=>a.name.trim()&&a.present),ab=s.items.filter(a=>a.name.trim()&&!a.present);
+      const li=l=>l.map((a,i)=>`<div style="padding:2px 0">${i+1}. ${esc(a.name)}${a.role?` <span style="color:#5f6b82">– ${esc(a.role)}</span>`:''}</div>`).join('');
+      if(p.length)out.push(`<div style="font-size:13px;color:#5f6b82;margin:0 0 2px">ผู้เข้าร่วม (${p.length} คน)</div>${li(p)}`);
+      if(ab.length)out.push(`<div style="font-size:13px;color:#5f6b82;margin:10px 0 2px">ผู้ไม่ได้เข้าร่วม (${ab.length} คน)</div>${li(ab)}`);
+    }else if(s.type==='agenda'){s.items.filter(a=>a.topic||a.discussion||a.resolution).forEach((a,i)=>{
+      out.push(`<div style="margin:0 0 14px"><div style="font-weight:700">วาระที่ ${i+1}${a.topic?' : '+esc(a.topic):''}</div>${a.discussion?`<div style="white-space:pre-wrap;margin:4px 0 0">${esc(a.discussion)}</div>`:''}${a.resolution?`<div style="margin:8px 0 0;padding:8px 12px;background:#fbf2df;border-left:4px solid #b7801a"><b style="color:#8a5f10">มติที่ประชุม</b><div style="white-space:pre-wrap">${esc(a.resolution)}</div></div>`:''}</div>`)});
+    }else if(s.type==='actions'){const l=s.items.filter(a=>a.task.trim());const col=['#5f6b82','#b7801a','#1b7a4b'];
+      out.push(`<table role="presentation" style="border-collapse:collapse;width:100%;min-width:420px"><thead><tr><th style="${th};width:28px">#</th><th style="${th}">งาน</th><th style="${th}">ผู้รับผิดชอบ</th><th style="${th}">กำหนดเสร็จ</th><th style="${th}">สถานะ</th></tr></thead><tbody>${l.map((a,i)=>`<tr><td style="${td};color:#5f6b82">${i+1}</td><td style="${td}">${esc(a.task)}</td><td style="${td}">${esc(a.owner||'–')}</td><td style="${td};white-space:nowrap">${esc(a.due?thShort(a.due):'–')}</td><td style="${td};color:${col[Math.max(0,STATUS.indexOf(a.status))]};font-weight:600;white-space:nowrap">${esc(a.status)}</td></tr>`).join('')}</tbody></table>`);
+    }else out.push(`<div style="white-space:pre-wrap">${esc(s.text)}</div>`);
+  });
+  if(!opt.print){
+    if(S.replyNote)out.push(`<p style="margin:22px 0 0">${esc(S.replyNote)}</p>`);
+    const sig=S.senderName||m.recorder;out.push(`<p style="margin:14px 0 0">${esc(S.closing||'')}${sig?'<br>'+esc(sig):''}</p>`);
+  }else{
+    const sigs=[];if(m.show.recorder)sigs.push(['ผู้จดรายงานการประชุม',m.recorder]);if(m.show.reviewer)sigs.push(['ผู้ตรวจรายงานการประชุม',m.reviewer]);
+    if(sigs.length)out.push(`<table style="width:100%;margin-top:48px"><tr>${sigs.map(s=>`<td style="text-align:center;padding:0 10px">ลงชื่อ ................................................<br>(${esc(s[1]||'                              ')})<br>${s[0]}</td>`).join('')}</tr></table>`);
+  }
+  return `<div style="${F};font-size:15px;line-height:1.65;color:#152036;max-width:720px">${out.join('')}</div>`;
+}
+function emailText(m){
+  const S=store.settings,L=['เรียน ผู้เข้าร่วมประชุมทุกท่าน','',`ขอส่งสรุปการประชุม "${m.title||'(ยังไม่ตั้งชื่อ)'}" เพื่อโปรดทราบ รายละเอียดดังนี้`,''];
+  metaRows(m).forEach(r=>L.push(`${r[0]}: ${r[1]}`));
+  m.sections.filter(hasContent).forEach(s=>{L.push('',`■ ${s.title}`);
+    if(s.type==='attendees'){const p=s.items.filter(a=>a.name.trim()&&a.present),ab=s.items.filter(a=>a.name.trim()&&!a.present);
+      if(p.length){L.push(`ผู้เข้าร่วม (${p.length} คน)`);p.forEach((a,i)=>L.push(`  ${i+1}. ${a.name}${a.role?' – '+a.role:''}`))}
+      if(ab.length){L.push(`ผู้ไม่ได้เข้าร่วม (${ab.length} คน)`);ab.forEach((a,i)=>L.push(`  ${i+1}. ${a.name}${a.role?' – '+a.role:''}`))}}
+    else if(s.type==='agenda')s.items.filter(a=>a.topic||a.discussion||a.resolution).forEach((a,i)=>{L.push(`วาระที่ ${i+1}${a.topic?' : '+a.topic:''}`);if(a.discussion)L.push(a.discussion);if(a.resolution)L.push('มติที่ประชุม: '+a.resolution);L.push('')});
+    else if(s.type==='actions')s.items.filter(a=>a.task.trim()).forEach((a,i)=>L.push(`  ${i+1}. ${a.task} | ผู้รับผิดชอบ: ${a.owner||'-'} | กำหนดเสร็จ: ${a.due?thShort(a.due):'-'} | ${a.status}`));
+    else L.push(s.text)});
+  if(S.replyNote)L.push('',S.replyNote);L.push('',S.closing||'');const sig=S.senderName||m.recorder;if(sig)L.push(sig);
+  return L.join('\n');
+}
+
+/* ============ MIME (.eml + Gmail API) ============ */
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+const wrap76=s=>s.replace(/.{1,76}/g,'$&\r\n').trim();
+function encHeader(s){if(/^[\x20-\x7e]*$/.test(s))return s;const cps=[...s],parts=[];for(let i=0;i<cps.length;i+=14)parts.push('=?UTF-8?B?'+b64(cps.slice(i,i+14).join(''))+'?=');return parts.join('\r\n ')}
+function buildMime(m,{unsent}={}){
+  const r=recipients(m),bd='mom_'+uid(),H=[];
+  if(unsent)H.push('X-Unsent: 1');
+  H.push('To: '+r.to.join(', '));if(r.cc.length)H.push('Cc: '+r.cc.join(', '));
+  H.push('Subject: '+encHeader(subjectOf(m)),'MIME-Version: 1.0',`Content-Type: multipart/alternative; boundary="${bd}"`);
+  const html=`<!doctype html><html><head><meta charset="utf-8"></head><body>${emailHtml(m)}</body></html>`;
+  return H.join('\r\n')+'\r\n\r\n'+
+    `--${bd}\r\nContent-Type: text/plain; charset="UTF-8"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64(emailText(m)))}\r\n`+
+    `--${bd}\r\nContent-Type: text/html; charset="UTF-8"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64(html))}\r\n--${bd}--\r\n`;
+}
+const b64url=s=>btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+
+/* ============ draft actions ============ */
+function precheck(m){const r=recipients(m);
+  if(!m.title.trim())return 'กรุณาตั้งชื่อการประชุมก่อน';
+  if(r.bad.length)return 'มีอีเมลที่รูปแบบไม่ถูกต้อง: '+r.bad.map(esc).join(', ');
+  if(!r.to.length)return 'ยังไม่มีผู้รับ ใส่อีเมลผู้เข้าร่วม หรือพิมพ์ในช่อง "ถึง (เพิ่มเติม)"';return ''}
+function setFlash(kind,html){flash={kind,html};renderMain()}
+function markDrafted(m,via){m.draftedAt=Date.now();m.draftVia=via;m.status='drafted';touch()}
+
+function copyRichSync(m){const d=document.createElement('div');d.innerHTML=emailHtml(m);d.style.cssText='position:fixed;left:-10000px;top:0;background:#fff;color:#000';document.body.appendChild(d);
+  const sel=getSelection(),rg=document.createRange();rg.selectNodeContents(d);sel.removeAllRanges();sel.addRange(rg);let ok=false;try{ok=document.execCommand('copy')}catch(e){}sel.removeAllRanges();d.remove();return ok}
+async function copyRich(m){try{if(navigator.clipboard&&window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([emailHtml(m)],{type:'text/html'}),'text/plain':new Blob([emailText(m)],{type:'text/plain'})})]);return true}}catch(e){}return copyRichSync(m)}
+
+function openWeb(m,which){const err=precheck(m);if(err)return setFlash('bad',err);
+  const r=recipients(m),e=encodeURIComponent,ok=copyRichSync(m);
+  const url=which==='outlook'?`https://outlook.office.com/mail/deeplink/compose?to=${e(r.to.join(';'))}${r.cc.length?'&cc='+e(r.cc.join(';')):''}&subject=${e(subjectOf(m))}`
+    :`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${e(r.to.join(','))}${r.cc.length?'&cc='+e(r.cc.join(',')):''}&su=${e(subjectOf(m))}`;
+  const w=window.open(url,'_blank');markDrafted(m,which==='outlook'?'Outlook บนเว็บ':'Gmail บนเว็บ');
+  setFlash(ok?'ok':'gold',(w?'เปิดหน้าเขียนอีเมลในแท็บใหม่แล้ว ':`เบราว์เซอร์บล็อกหน้าต่างใหม่ <a href="${esc(url)}" target="_blank" rel="noopener">คลิกที่นี่เพื่อเปิด</a> `)+(ok?'· เนื้อหาถูกคัดลอกแล้ว <b>คลิกในช่องข้อความแล้วกด Ctrl+V</b> อีเมลจะถูกบันทึกเป็นฉบับร่างอัตโนมัติ':'· คัดลอกอัตโนมัติไม่ได้ กด "คัดลอกพร้อมรูปแบบ" แล้ววางเอง'))}
+
+function downloadEml(m){const err=precheck(m);if(err)return setFlash('bad',err);
+  const blob=new Blob([buildMime(m,{unsent:true})],{type:'message/rfc822'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);const asc=(m.title||'').replace(/[^A-Za-z0-9-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40);a.download='MOM_'+(m.date||today())+(asc?'_'+asc:'')+'.eml';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+  markDrafted(m,'ไฟล์ .eml');setFlash('ok','ดาวน์โหลดไฟล์ร่างอีเมลแล้ว ดับเบิลคลิกไฟล์ .eml เพื่อเปิดเป็นร่างใน Outlook ตรวจทาน แล้วกดส่ง')}
+
+let gisP=null,gTok=null,gExp=0,tokenClient=null;
+function loadGis(){if(window.google?.accounts?.oauth2)return Promise.resolve();if(gisP)return gisP;
+  gisP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=res;s.onerror=()=>{gisP=null;rej(new Error('gis'))};document.head.appendChild(s)});return gisP}
+function getToken(){return new Promise((res,rej)=>{
+  if(gTok&&Date.now()<gExp-60000)return res(gTok);
+  if(!window.google?.accounts?.oauth2)return rej(new Error('notloaded'));
+  tokenClient=google.accounts.oauth2.initTokenClient({client_id:store.settings.clientId.trim(),scope:'https://www.googleapis.com/auth/gmail.compose',
+    callback:t=>{if(t.error)return rej(new Error(t.error));gTok=t.access_token;gExp=Date.now()+(+t.expires_in||3600)*1000;res(gTok)},
+    error_callback:e=>rej(new Error(e?.type||'popup'))});
+  tokenClient.requestAccessToken();})}
+async function gmailApi(m){
+  const err=precheck(m);if(err)return setFlash('bad',err);
+  if(IS_FILE)return setFlash('gold','การเชื่อมต่อ Gmail ต้องเปิดโปรแกรมผ่าน <b>start.bat</b> (ที่อยู่ http://localhost:8765) ไม่ใช่ดับเบิลคลิกไฟล์ index.html');
+  if(!window.google?.accounts?.oauth2){setFlash('','กำลังโหลดระบบเข้าสู่ระบบ Google… กดปุ่มอีกครั้งในไม่กี่วินาที');loadGis().then(()=>setFlash('','พร้อมแล้ว กด "สร้างร่างใน Gmail" อีกครั้ง')).catch(()=>setFlash('bad','โหลดระบบ Google ไม่ได้ ตรวจการเชื่อมต่ออินเทอร์เน็ต'));return}
+  let tok;
+  try{tok=await getToken()}catch(e){const c=e.message;return setFlash('bad',c==='popup_closed'?'ปิดหน้าต่างเข้าสู่ระบบก่อนเสร็จ กดสร้างร่างอีกครั้ง':c==='popup_failed_to_open'?'เบราว์เซอร์บล็อกป๊อปอัป อนุญาตป๊อปอัปสำหรับ localhost แล้วลองใหม่':c==='access_denied'?'ไม่ได้อนุญาตสิทธิ์ร่างอีเมล':'เข้าสู่ระบบ Google ไม่สำเร็จ ('+esc(c)+') ตรวจ Client ID และ Authorized JavaScript origins ในหน้าตั้งค่า')}
+  setFlash('','กำลังสร้างร่างใน Gmail…');
+  try{
+    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/drafts',{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({message:{raw:b64url(buildMime(m))}})});
+    const j=await res.json().catch(()=>({}));
+    if(!res.ok){if(res.status===401){gTok=null}throw new Error(j?.error?.message||('HTTP '+res.status))}
+    markDrafted(m,'Gmail (อัตโนมัติ)');
+    const link='https://mail.google.com/mail/u/0/#drafts'+(j?.message?.id?'?compose='+j.message.id:'');
+    setFlash('ok',`สร้างร่างใน Gmail แล้ว ถึง ${recipients(m).to.length} คน · <a href="${esc(link)}" target="_blank" rel="noopener">เปิดร่างใน Gmail ↗</a> ตรวจทานแล้วกดส่ง`);
+  }catch(e){setFlash('bad','Gmail ตอบกลับว่าสร้างร่างไม่สำเร็จ: '+esc(e.message)+(String(e.message).includes('has not been used')||String(e.message).includes('disabled')?' (ยังไม่ได้เปิด Gmail API ใน Google Cloud)':''))}
+}
+function printMom(m){$('#printArea').innerHTML=emailHtml(m,{print:true});window.print()}
+
+/* ============ events ============ */
+const main=$('#main');
+main.addEventListener('input',e=>{
+  const t=e.target,m=cur();if(!m)return;
+  if(t.dataset.f){m[t.dataset.f]=t.type==='checkbox'?t.checked:t.value;touch();if(view==='send')softSend();return}
+  if(t.dataset.s!=null&&t.dataset.k){const s=m.sections[+t.dataset.s];if(!s)return;
+    if(t.dataset.i!=null){const it=s.items[+t.dataset.i];it[t.dataset.k]=t.dataset.k==='present'?t.value==='1':t.value;
+      if(t.dataset.k==='email')t.classList.toggle('badmail',!!t.value.trim()&&!EMAIL.test(t.value.trim()));
+      if(t.dataset.k==='status')t.className='st-'+Math.max(0,STATUS.indexOf(t.value));
+      if(t.dataset.k==='name'){const dl=$('#ppl');if(dl)dl.innerHTML=[...new Set(m.sections.filter(x=>x.type==='attendees').flatMap(x=>x.items.map(a=>a.name)).filter(Boolean))].map(p=>`<option value="${esc(p)}">`).join('')}}
+    else s[t.dataset.k]=t.value;
+    touch()}
+});
+let sendT;function softSend(){clearTimeout(sendT);sendT=setTimeout(()=>{const a=document.activeElement,f=a?.dataset?.f,pos=a?.selectionStart;renderMain();if(f){const n=main.querySelector(`[data-f="${f}"]`);if(n){n.focus();try{if(pos!=null)n.setSelectionRange(pos,pos)}catch(_){}}}},500)}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,m=cur(),si=+b.dataset.s,ii=+b.dataset.i;
+  switch(a){
+    case 'new':curId=null;view='write';flash=null;render();break;
+    case 'create':{const n=newMom(b.dataset.tpl);store.moms.push(n);curId=n.id;closeLayer();persist(true);render();setTimeout(()=>main.querySelector('.title-in')?.focus(),30);break}
+    case 'view':if(b.dataset.v==='send'&&m&&!m.title.trim()){flash={kind:'bad',html:'กรุณาตั้งชื่อการประชุมก่อน'};view='write';renderMain();main.querySelector('.title-in')?.focus();break}
+      view=b.dataset.v;flash=null;renderMain();window.scrollTo({top:0,behavior:'smooth'});break;
+    case 'hide-meta':e.preventDefault();m.show[b.dataset.m]=false;touch();renderMain();break;
+    case 'show-meta':m.show[b.dataset.m]=true;touch();renderMain();break;
+    case 'add-sec':{const t=b.dataset.type,s=SEC[t](b.dataset.title);m.sections.push(s);touch();renderMain();
+      const secs=main.querySelectorAll('.sec');const last=secs[secs.length-1];last?.scrollIntoView({behavior:'smooth',block:'center'});
+      if(b.dataset.title==='หัวข้อใหม่'){const ti=last?.querySelector('.sec-t');ti?.focus();ti?.select()}break}
+    case 'sec-up':case 'sec-down':{const j=a==='sec-up'?si-1:si+1;if(j<0||j>=m.sections.length)break;[m.sections[si],m.sections[j]]=[m.sections[j],m.sections[si]];touch();renderMain();break}
+    case 'sec-fold':m.sections[si].collapsed=!m.sections[si].collapsed;touch();renderMain();break;
+    case 'sec-del':{const [s]=m.sections.splice(si,1);touch();renderMain();toast(`นำหัวข้อ "${s.title}" ออกแล้ว`,()=>{m.sections.splice(si,0,s);touch();renderMain()});break}
+    case 'item-add':{const s=m.sections[si];s.items.push(s.type==='attendees'?att():s.type==='agenda'?agi():act());touch();renderMain();
+      const f=main.querySelectorAll(`[data-s="${si}"][data-i="${s.items.length-1}"]`)[0];f?.focus();break}
+    case 'item-del':{const s=m.sections[si];const [it]=s.items.splice(ii,1);touch();renderMain();toast('ลบแถวแล้ว',()=>{s.items.splice(ii,0,it);touch();renderMain()});break}
+    case 'del-mom':{const idx=store.moms.indexOf(m);store.moms.splice(idx,1);curId=null;persist(true);render();toast(`ลบ "${m.title||'MOM'}" แล้ว`,()=>{store.moms.splice(idx,0,m);curId=m.id;persist(true);render()});break}
+    case 'dup':{const n=clone(m);Object.assign(n,{id:uid(),title:m.title+' (ครั้งถัดไป)',date:today(),draftedAt:0,draftVia:'',status:'draft',createdAt:Date.now(),updatedAt:Date.now(),subject:''});
+      n.sections.forEach(s=>{s.id=uid();if(s.type==='agenda')s.items.forEach(x=>{x.discussion='';x.resolution=''});if(s.type==='attendees')s.items.forEach(x=>x.present=true);if(s.type==='text')s.text=''});
+      n.sections.forEach(s=>{if(s.type==='actions')s.items=s.items.filter(x=>x.task&&x.status!==STATUS[2]).concat(s.items.some(x=>x.task&&x.status!==STATUS[2])?[]:[act()])});
+      store.moms.push(n);curId=n.id;view='write';flash={kind:'ok',html:'สร้างสำเนาแล้ว คงรายชื่อผู้เข้าร่วม หัวข้อวาระ และงานที่ยังไม่เสร็จไว้ให้'};persist(true);render();break}
+    case 'm-api':gmailApi(m);break;
+    case 'm-web':openWeb(m,b.dataset.w);break;
+    case 'm-eml':downloadEml(m);break;
+    case 'm-copy':copyRich(m).then(ok=>setFlash(ok?'ok':'bad',ok?'คัดลอกพร้อมรูปแบบแล้ว วางในอีเมลหรือเอกสารได้ทันที':'คัดลอกไม่ได้ ลองเลือกข้อความในตัวอย่างด้านขวาแล้วกด Ctrl+C'));break;
+    case 'm-print':printMom(m);break;
+    case 'settings':openSettings();break;
+    case 'backup':openBackup();break;
+    case 'close':closeLayer();break;
+    case 'save-set':{store.settings.senderName=$('#s-name').value.trim();store.settings.closing=$('#s-close').value;store.settings.replyNote=$('#s-reply').value;
+      const cid=$('#s-cid').value.trim();if(cid!==store.settings.clientId){gTok=null}store.settings.clientId=cid;persist(true);closeLayer();renderMain();toast('บันทึกการตั้งค่าแล้ว');break}
+    case 'export':{const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});const l=document.createElement('a');l.href=URL.createObjectURL(blob);l.download='mom-backup-'+today()+'.json';document.body.appendChild(l);l.click();setTimeout(()=>{URL.revokeObjectURL(l.href);l.remove()},1500);break}
+    case 'import':$('#importFile').click();break;
+  }
+});
+$('#importFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!d||!Array.isArray(d.moms))throw 0;
+    const have=new Set(store.moms.map(m=>m.id));let n=0;d.moms.forEach(m=>{if(m&&m.id&&Array.isArray(m.sections)&&!have.has(m.id)){m.show=Object.assign({time:true,location:true,chair:true,recorder:true,reviewer:false},m.show||{});store.moms.push(m);n++}});
+    persist(true);closeLayer();render();toast(`นำเข้า ${n} รายการ${d.moms.length-n?` (ข้าม ${d.moms.length-n} รายการที่มีอยู่แล้ว)`:''}`)}
+  catch(_){toast('ไฟล์นี้ไม่ใช่ไฟล์สำรองของ MOM Writer')}});
+
+/* ============ layer: modal + toast ============ */
+function closeLayer(){$('#layer').innerHTML=''}
+function modal(html){$('#layer').innerHTML=`<div class="scrim" data-scrim><div class="paper modal" role="dialog" aria-modal="true">${html}</div></div>`;
+  $('#layer .scrim').addEventListener('mousedown',e=>{if(e.target.hasAttribute('data-scrim'))closeLayer()})}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#layer .scrim'))closeLayer()});
+function openSettings(){const S=store.settings,origin=IS_FILE?'http://localhost:8765':location.origin;
+  modal(`<h2>ตั้งค่า</h2>
+  <label class="fld"><span>ชื่อผู้ส่ง (ลงท้ายอีเมล)</span><input id="s-name" value="${esc(S.senderName)}" placeholder="เช่น พีรพัฒน์ ฝ่ายวางแผน"></label>
+  <label class="fld"><span>คำลงท้าย</span><input id="s-close" value="${esc(S.closing)}"></label>
+  <label class="fld"><span>ข้อความท้ายอีเมล</span><input id="s-reply" value="${esc(S.replyNote)}"></label>
+  <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+    <h4 style="margin:0">เชื่อมต่อ Gmail เพื่อสร้างร่างอัตโนมัติ</h4>
+    <label class="fld"><span>Google OAuth Client ID</span><input id="s-cid" value="${esc(S.clientId)}" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
+    ${IS_FILE?'<div class="note gold">ตอนนี้เปิดจากไฟล์โดยตรง การเชื่อมต่อ Gmail ต้องเปิดผ่าน <b>start.bat</b></div>':''}
+    <ol><li>ไปที่ <code>console.cloud.google.com</code> สร้างหรือเลือกโปรเจกต์</li>
+      <li>APIs &amp; Services → Library → เปิดใช้ <b>Gmail API</b></li>
+      <li>OAuth consent screen → User type <b>Internal</b> (บัญชีองค์กร) ใส่ชื่อแอปและอีเมล</li>
+      <li>Credentials → Create credentials → <b>OAuth client ID</b> → ประเภท <b>Web application</b></li>
+      <li>Authorized JavaScript origins ใส่ <code>${esc(origin)}</code> แล้วกด Create</li>
+      <li>คัดลอก Client ID มาวางในช่องด้านบน แล้วกดบันทึก</li></ol>
+    <div class="hint">ระบบขอสิทธิ์แค่ "ร่างและส่งอีเมล" (gmail.compose) แต่จะสร้างเป็นฉบับร่างเท่านั้น ไม่ส่งเอง ถ้าบัญชีองค์กรบล็อกการสร้างแอป ให้ติดต่อผู้ดูแล Google Workspace หรือใช้วิธี "เปิดหน้าเขียนอีเมล" แทน</div>
+  </div>
+  <div class="foot"><button class="btn" data-act="close">ยกเลิก</button><button class="btn pri" data-act="save-set">บันทึก</button></div>`)}
+function openBackup(){modal(`<h2>สำรองและกู้คืนข้อมูล</h2>
+  <p class="hint" style="margin:0">ข้อมูลเก็บในเบราว์เซอร์ของเครื่องนี้เท่านั้น ควรสำรองเป็นไฟล์เป็นระยะ และใช้ไฟล์นี้ย้ายข้อมูลไปเครื่องอื่น</p>
+  <div class="note">มีบันทึกการประชุมทั้งหมด <b>${store.moms.length}</b> รายการ</div>
+  <div class="foot"><button class="btn" data-act="import">นำเข้าจากไฟล์สำรอง…</button><button class="btn pri" data-act="export">ดาวน์โหลดไฟล์สำรอง (.json)</button></div>
+  <div style="text-align:right"><button class="btn" data-act="close">ปิด</button></div>`)}
+function toast(text,onUndo){clearTimeout(toastT);const old=$('.toast');old&&old.remove();const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');
+  t.innerHTML=`<span>${esc(text)}</span>${onUndo?'<button>เลิกทำ</button>':''}`;document.body.appendChild(t);
+  if(onUndo)t.querySelector('button').onclick=()=>{onUndo();t.remove()};toastT=setTimeout(()=>t.remove(),6000)}
+
+/* ============ boot ============ */
+render();
+})();
+</script>
+</body>
+</html>
