@@ -205,6 +205,23 @@ select.st-0{color:var(--muted)} select.st-1{color:var(--gold)} select.st-2{color
 .tplc:hover{border-color:var(--accent)}
 .tplc b{font-size:14.5px} .tplc small{color:var(--muted);font-size:12.5px;line-height:1.45}
 
+/* sign-off */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.sgc{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--raise)}
+.sgc-h{display:flex;gap:6px;align-items:center}
+.sgc input{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 9px;width:100%;min-width:0}
+.sgc-h input{font-weight:600}
+.sgbox{all:unset;box-sizing:border-box;cursor:pointer;height:100px;border:1.5px dashed var(--line2);border-radius:8px;background:#fff;display:grid;place-items:center;color:#7d879a;font-size:13.5px;overflow:hidden;text-align:center;padding:6px}
+.sgbox:hover{border-color:var(--accent);color:var(--accent)}
+.sgbox img{max-height:86px;max-width:100%;display:block}
+.sgrow{display:flex;gap:4px;flex-wrap:wrap;min-height:22px}
+.lnk{all:unset;cursor:pointer;font-size:12.5px;color:var(--accent);padding:2px 7px;border-radius:6px}
+.lnk:hover{background:var(--accent-soft)}
+.lnk.danger{color:var(--bad)}
+.pad{width:100%;height:230px;background:#fff;border:1px solid var(--line2);border-radius:10px;touch-action:none;cursor:crosshair;display:block}
+.padwrap{position:relative}
+.padline{position:absolute;left:8%;right:8%;bottom:52px;border-top:1px dashed #c3cad6;pointer-events:none}
+.padhint{position:absolute;left:0;right:0;bottom:24px;text-align:center;color:#9aa3b2;font-size:12.5px;pointer-events:none}
 #printArea{display:none}
 @media print{
   body{background:#fff}
@@ -237,6 +254,7 @@ select.st-0{color:var(--muted)} select.st-1{color:var(--gold)} select.st-2{color
 <div id="printArea"></div>
 <div id="layer"></div>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
+<input type="file" id="sigFile" accept="image/png,image/jpeg" hidden>
 
 <script>
 (function(){
@@ -278,26 +296,30 @@ function updSaved(){const el=$('#saved');if(!el)return;el.innerHTML=saveErr?`<sp
 const att=()=>({name:'',email:'',role:'',present:true});
 const agi=(topic='')=>({topic,discussion:'',resolution:''});
 const act=()=>({task:'',owner:'',due:'',status:STATUS[0]});
+const sgi=(role='')=>({role,name:'',date:today(),sig:''});
 const SEC={
   attendees:(t='ผู้เข้าร่วมประชุม')=>({id:uid(),type:'attendees',title:t,items:[att(),att()]}),
   agenda:(t='วาระการประชุมและมติ',topics)=>({id:uid(),type:'agenda',title:t,items:(topics||['']).map(agi)}),
   actions:(t='งานที่ต้องดำเนินการ')=>({id:uid(),type:'actions',title:t,items:[act()]}),
-  text:(t='หัวข้อใหม่',text='')=>({id:uid(),type:'text',title:t,text})
+  text:(t='หัวข้อใหม่',text='')=>({id:uid(),type:'text',title:t,text}),
+  signoff:(t='ลงนาม',roles=['ผู้จดบันทึกการประชุม'])=>({id:uid(),type:'signoff',title:t,items:roles.map(sgi)})
 };
 const META=[['time','เวลา'],['location','สถานที่ / ช่องทาง'],['chair','ประธานการประชุม'],['recorder','ผู้จดบันทึก'],['reviewer','ผู้ตรวจรายงาน']];
 const TEMPLATES={
   team:{name:'ประชุมทีมทั่วไป',desc:'ผู้เข้าร่วม วาระและมติ งานที่ต้องทำ นัดครั้งถัดไป',
-    make:()=>({show:{time:true,location:true,chair:true,recorder:true,reviewer:false},sections:[SEC.attendees(),SEC.agenda(),SEC.actions(),SEC.text('นัดประชุมครั้งถัดไป'),SEC.text('หมายเหตุ')]})},
+    make:()=>({show:{time:true,location:true,chair:true,recorder:true,reviewer:false},sections:[SEC.attendees(),SEC.agenda(),SEC.actions(),SEC.text('นัดประชุมครั้งถัดไป'),SEC.text('หมายเหตุ'),SEC.signoff()]})},
   formal:{name:'รายงานการประชุมแบบทางการ',desc:'5 ระเบียบวาระตามแบบราชการ พร้อมผู้ตรวจรายงาน',
-    make:()=>({show:{time:true,location:true,chair:true,recorder:true,reviewer:true},sections:[SEC.attendees('ผู้มาประชุม'),SEC.agenda('ระเบียบวาระการประชุม',['เรื่องที่ประธานแจ้งให้ที่ประชุมทราบ','รับรองรายงานการประชุมครั้งที่แล้ว','เรื่องสืบเนื่องจากการประชุมครั้งที่แล้ว','เรื่องเพื่อพิจารณา','เรื่องอื่น ๆ']),SEC.actions('สรุปงานที่มอบหมาย')]})},
+    make:()=>({show:{time:true,location:true,chair:true,recorder:true,reviewer:true},sections:[SEC.attendees('ผู้มาประชุม'),SEC.agenda('ระเบียบวาระการประชุม',['เรื่องที่ประธานแจ้งให้ที่ประชุมทราบ','รับรองรายงานการประชุมครั้งที่แล้ว','เรื่องสืบเนื่องจากการประชุมครั้งที่แล้ว','เรื่องเพื่อพิจารณา','เรื่องอื่น ๆ']),SEC.actions('สรุปงานที่มอบหมาย'),SEC.signoff('ลงนามรับรองรายงาน',['ผู้จดรายงานการประชุม','ผู้ตรวจรายงานการประชุม','ประธานการประชุม'])]})},
   quick:{name:'สรุปสั้น',desc:'ผู้เข้าร่วม ประเด็นสำคัญ และงานที่ต้องทำ',
     make:()=>({show:{time:false,location:false,chair:false,recorder:true,reviewer:false},sections:[SEC.attendees(),SEC.text('ประเด็นสำคัญ'),SEC.actions()]})},
   blank:{name:'เริ่มจากหน้าว่าง',desc:'มีแค่ชื่อและวันที่ เพิ่มหัวข้อเองทีละส่วน',
     make:()=>({show:{time:false,location:false,chair:false,recorder:false,reviewer:false},sections:[]})}
 };
 function newMom(tpl){const t=TEMPLATES[tpl]||TEMPLATES.team;const b=t.make();
+  b.sections.forEach(s=>{if(s.type==='signoff')s.items.forEach(a=>{if(a.role.includes('จด'))a.name=store.settings.senderName||''})});
   return Object.assign({id:uid(),title:'',date:today(),timeStart:'',timeEnd:'',location:'',chair:'',recorder:store.settings.senderName||'',reviewer:'',
-    extraTo:'',cc:'',subject:'',includeAbsent:true,status:'draft',draftedAt:0,draftVia:'',createdAt:Date.now(),updatedAt:Date.now()},b)}
+    extraTo:'',cc:'',subject:'',includeAbsent:true,status:'draft',draftedAt:0,draftVia:'',createdAt:Date.now(),updatedAt:Date.now()},b);
+}
 
 let curId=store.moms[0]?.id||null, view='write', q='', flash=null, undo=null, toastT;
 const cur=()=>store.moms.find(m=>m.id===curId)||null;
@@ -359,6 +381,7 @@ function writeView(m){
     ['text','เรื่องแจ้งเพื่อทราบ'],
     ['text','นัดประชุมครั้งถัดไป'],
     ['text','หมายเหตุ'],
+    !has('signoff')&&['signoff','ลงนาม','ช่องลงนาม (ชื่อ ลายเซ็น วันที่)'],
     ['text','หัวข้อใหม่','กำหนดเอง…']
   ].filter(Boolean);
   const add=`<div class="addsec"><div class="lbl">+ เพิ่มหัวข้อ</div><div class="opts">${opts.map(o=>`<button class="opt" data-act="add-sec" data-type="${o[0]}" data-title="${esc(o[1])}">${esc(o[2]||o[1])}</button>`).join('')}</div></div>`;
@@ -394,6 +417,18 @@ function secHtml(s,i,n){
       <select data-s="${i}" data-i="${j}" data-k="status" class="st-${Math.max(0,STATUS.indexOf(a.status))}" aria-label="สถานะ">${STATUS.map(x=>`<option${x===a.status?' selected':''}>${x}</option>`).join('')}</select>
       <button class="ib del" data-act="item-del" data-s="${i}" data-i="${j}" title="ลบงาน" aria-label="ลบงาน">${I.x}</button></div>`).join('')}</div>
     <button class="addrow" data-act="item-add" data-s="${i}">+ เพิ่มงาน</button>`;
+  }else if(s.type==='signoff'){
+    const mine=!!store.settings.mySig, A=(j)=>`data-s="${i}" data-i="${j}"`;
+    body=`<div class="sg">${s.items.map((a,j)=>`<div class="sgc">
+      <div class="sgc-h"><input ${A(j)} data-k="role" value="${esc(a.role)}" placeholder="ตำแหน่ง เช่น ผู้ตรวจรายงาน" aria-label="ตำแหน่งผู้ลงนาม">
+        <button class="ib del" data-act="item-del" ${A(j)} title="ลบผู้ลงนาม" aria-label="ลบผู้ลงนาม">${I.x}</button></div>
+      <button class="sgbox" data-act="sig-open" ${A(j)} aria-label="ลงลายเซ็น">${a.sig?`<img src="${esc(a.sig)}" alt="ลายเซ็นของ ${esc(a.name)}">`:'คลิกเพื่อลงลายเซ็น<br><small>วาด หรืออัปโหลดรูป</small>'}</button>
+      <div class="sgrow">${a.sig?`<button class="lnk" data-act="sig-open" ${A(j)}>เซ็นใหม่</button><button class="lnk danger" data-act="sig-clear" ${A(j)}>ลบลายเซ็น</button>`:mine?`<button class="lnk" data-act="sig-mine" ${A(j)}>ใช้ลายเซ็นของฉัน</button>`:''}</div>
+      <label class="fld"><span>ชื่อ-สกุล</span><input ${A(j)} data-k="name" value="${esc(a.name)}" placeholder="ชื่อผู้ลงนาม" list="ppl"></label>
+      <label class="fld"><span>วันที่ลงนาม</span><input type="date" ${A(j)} data-k="date" value="${esc(a.date)}"></label>
+    </div>`).join('')}</div>
+    <button class="addrow" data-act="item-add" data-s="${i}">+ เพิ่มผู้ลงนาม</button>
+    <div class="hint">ช่องที่ไม่มีลายเซ็นจะพิมพ์เป็นเส้นให้เซ็นด้วยปากกา ส่วนในอีเมลจะแสดงเฉพาะผู้ที่กรอกชื่อหรือเซ็นแล้ว</div>`;
   }else{
     body=`<textarea data-s="${i}" data-k="text" placeholder="พิมพ์รายละเอียด (ปล่อยว่างได้ หัวข้อที่ว่างจะไม่ถูกใส่ในอีเมล)" aria-label="${esc(s.title)}">${esc(s.text)}</textarea>`;
   }
@@ -450,7 +485,10 @@ function sendView(m){
 function hasContent(s){if(s.type==='text')return !!s.text.trim();
   if(s.type==='attendees')return s.items.some(a=>a.name.trim());
   if(s.type==='agenda')return s.items.some(a=>a.topic||a.discussion||a.resolution);
-  if(s.type==='actions')return s.items.some(a=>a.task.trim());return false}
+  if(s.type==='actions')return s.items.some(a=>a.task.trim());
+  if(s.type==='signoff')return s.items.some(a=>a.name.trim()||a.sig);return false}
+const thLong=v=>{if(!v)return '';const d=new Date(v+'T00:00:00');return isNaN(d)?v:d.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})};
+const SIG_OK=/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 function metaRows(m){const r=[['วันที่',thDate(m.date)]];
   if(m.show.time&&m.timeStart)r.push(['เวลา',m.timeStart+(m.timeEnd?' – '+m.timeEnd:'')+' น.']);
   [['location','สถานที่'],['chair','ประธาน'],['recorder','ผู้จดบันทึก'],['reviewer','ผู้ตรวจรายงาน']].forEach(([k,l])=>{if(m.show[k]&&m[k].trim())r.push([l,m[k]])});
@@ -464,7 +502,15 @@ function emailHtml(m,opt={}){
   if(!opt.print){out.push(`<p style="margin:0 0 10px">เรียน ผู้เข้าร่วมประชุมทุกท่าน</p><p style="margin:0 0 16px">ขอส่งสรุปการประชุม <b>${esc(m.title||'(ยังไม่ตั้งชื่อ)')}</b> เพื่อโปรดทราบ รายละเอียดดังนี้</p>`)}
   else out.push(`<div style="text-align:center;margin-bottom:14px"><div style="font-size:20px;font-weight:700">รายงานการประชุม</div><div style="font-size:18px;font-weight:600">${esc(m.title||'')}</div></div>`);
   out.push(`<table role="presentation" style="border-collapse:collapse;background:#f4f7fc;border-radius:8px;margin:0 0 6px"><tbody>${metaRows(m).map(r=>`<tr><td style="padding:5px 18px 5px 14px;color:#5f6b82;font-size:13px;white-space:nowrap">${esc(r[0])}</td><td style="padding:5px 14px 5px 0;font-size:14px;font-weight:600">${esc(r[1])}</td></tr>`).join('')}</tbody></table>`);
-  m.sections.filter(hasContent).forEach(s=>{
+  m.sections.filter(s=>s.type==='signoff'||hasContent(s)).forEach(s=>{
+    if(s.type==='signoff'){
+      const l=s.items.filter(a=>a.name.trim()||a.sig||(opt.print&&a.role.trim()));if(!l.length)return;
+      out.push(`<div style="${H}">${esc(s.title)}</div>`);
+      for(let r=0;r<l.length;r+=3){const row=l.slice(r,r+3);
+        out.push(`<table role="presentation" style="border-collapse:collapse;width:100%;margin:${r?'18px':'4px'} 0 0"><tr>${row.map(a=>{
+          let src=SIG_OK.test(a.sig||'')?a.sig:'';if(src&&opt.cids){opt.cids.push(src);src='cid:sig'+(opt.cids.length-1)+'@momwriter'}
+          return `<td style="text-align:center;vertical-align:bottom;padding:6px 10px;width:33%">${src?`<img src="${src}" alt="ลายเซ็น" height="64" style="height:64px;max-width:210px;display:block;margin:0 auto 2px">`:'<div style="height:66px"></div>'}<div style="border-top:1px dotted #5f6b82;margin:0 8px;padding-top:4px;font-size:14px">(${esc(a.name.trim()||'\u00a0'.repeat(30))})</div>${a.role?`<div style="font-size:13px;color:#5f6b82">${esc(a.role)}</div>`:''}<div style="font-size:13px;color:#5f6b82">วันที่ ${a.date?esc(thLong(a.date)):'......../......../........'}</div></td>`}).join('')}${'<td style="width:33%"></td>'.repeat(row.length<3&&l.length>3?3-row.length:0)}</tr></table>`)}
+      return}
     out.push(`<div style="${H}">${esc(s.title)}</div>`);
     if(s.type==='attendees'){const p=s.items.filter(a=>a.name.trim()&&a.present),ab=s.items.filter(a=>a.name.trim()&&!a.present);
       const li=l=>l.map((a,i)=>`<div style="padding:2px 0">${i+1}. ${esc(a.name)}${a.role?` <span style="color:#5f6b82">– ${esc(a.role)}</span>`:''}</div>`).join('');
@@ -480,7 +526,7 @@ function emailHtml(m,opt={}){
     if(S.replyNote)out.push(`<p style="margin:22px 0 0">${esc(S.replyNote)}</p>`);
     const sig=S.senderName||m.recorder;out.push(`<p style="margin:14px 0 0">${esc(S.closing||'')}${sig?'<br>'+esc(sig):''}</p>`);
   }else{
-    const sigs=[];if(m.show.recorder)sigs.push(['ผู้จดรายงานการประชุม',m.recorder]);if(m.show.reviewer)sigs.push(['ผู้ตรวจรายงานการประชุม',m.reviewer]);
+    const sigs=[];if(!m.sections.some(s=>s.type==='signoff')){if(m.show.recorder)sigs.push(['ผู้จดรายงานการประชุม',m.recorder]);if(m.show.reviewer)sigs.push(['ผู้ตรวจรายงานการประชุม',m.reviewer]);}
     if(sigs.length)out.push(`<table style="width:100%;margin-top:48px"><tr>${sigs.map(s=>`<td style="text-align:center;padding:0 10px">ลงชื่อ ................................................<br>(${esc(s[1]||'                              ')})<br>${s[0]}</td>`).join('')}</tr></table>`);
   }
   return `<div style="${F};font-size:15px;line-height:1.65;color:#152036;max-width:720px">${out.join('')}</div>`;
@@ -493,6 +539,7 @@ function emailText(m){
       if(p.length){L.push(`ผู้เข้าร่วม (${p.length} คน)`);p.forEach((a,i)=>L.push(`  ${i+1}. ${a.name}${a.role?' – '+a.role:''}`))}
       if(ab.length){L.push(`ผู้ไม่ได้เข้าร่วม (${ab.length} คน)`);ab.forEach((a,i)=>L.push(`  ${i+1}. ${a.name}${a.role?' – '+a.role:''}`))}}
     else if(s.type==='agenda')s.items.filter(a=>a.topic||a.discussion||a.resolution).forEach((a,i)=>{L.push(`วาระที่ ${i+1}${a.topic?' : '+a.topic:''}`);if(a.discussion)L.push(a.discussion);if(a.resolution)L.push('มติที่ประชุม: '+a.resolution);L.push('')});
+    else if(s.type==='signoff')s.items.filter(a=>a.name.trim()||a.sig).forEach(a=>L.push(`  ${a.role||'ผู้ลงนาม'}: ${a.name||'-'}${a.date?' วันที่ '+thLong(a.date):''}${a.sig?' (ลงนามแล้ว)':''}`));
     else if(s.type==='actions')s.items.filter(a=>a.task.trim()).forEach((a,i)=>L.push(`  ${i+1}. ${a.task} | ผู้รับผิดชอบ: ${a.owner||'-'} | กำหนดเสร็จ: ${a.due?thShort(a.due):'-'} | ${a.status}`));
     else L.push(s.text)});
   if(S.replyNote)L.push('',S.replyNote);L.push('',S.closing||'');const sig=S.senderName||m.recorder;if(sig)L.push(sig);
@@ -508,10 +555,14 @@ function buildMime(m,{unsent}={}){
   if(unsent)H.push('X-Unsent: 1');
   H.push('To: '+r.to.join(', '));if(r.cc.length)H.push('Cc: '+r.cc.join(', '));
   H.push('Subject: '+encHeader(subjectOf(m)),'MIME-Version: 1.0',`Content-Type: multipart/alternative; boundary="${bd}"`);
-  const html=`<!doctype html><html><head><meta charset="utf-8"></head><body>${emailHtml(m)}</body></html>`;
+  const cids=[];const html=`<!doctype html><html><head><meta charset="utf-8"></head><body>${emailHtml(m,{cids})}</body></html>`;
+  let htmlPart=`Content-Type: text/html; charset="UTF-8"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64(html))}\r\n`;
+  if(cids.length){const rel='rel_'+uid();
+    htmlPart=`Content-Type: multipart/related; boundary="${rel}"\r\n\r\n--${rel}\r\n${htmlPart}`+cids.map((d,k)=>{const mm=/^data:(image\/(?:png|jpeg));base64,(.*)$/.exec(d);const ext=mm[1]==='image/png'?'png':'jpg';
+      return `--${rel}\r\nContent-Type: ${mm[1]}; name="signature${k+1}.${ext}"\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <sig${k}@momwriter>\r\nContent-Disposition: inline; filename="signature${k+1}.${ext}"\r\n\r\n${wrap76(mm[2])}\r\n`}).join('')+`--${rel}--\r\n`}
   return H.join('\r\n')+'\r\n\r\n'+
     `--${bd}\r\nContent-Type: text/plain; charset="UTF-8"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64(emailText(m)))}\r\n`+
-    `--${bd}\r\nContent-Type: text/html; charset="UTF-8"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64(html))}\r\n--${bd}--\r\n`;
+    `--${bd}\r\n${htmlPart}--${bd}--\r\n`;
 }
 const b64url=s=>btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 
@@ -598,14 +649,22 @@ document.addEventListener('click',e=>{
     case 'sec-up':case 'sec-down':{const j=a==='sec-up'?si-1:si+1;if(j<0||j>=m.sections.length)break;[m.sections[si],m.sections[j]]=[m.sections[j],m.sections[si]];touch();renderMain();break}
     case 'sec-fold':m.sections[si].collapsed=!m.sections[si].collapsed;touch();renderMain();break;
     case 'sec-del':{const [s]=m.sections.splice(si,1);touch();renderMain();toast(`นำหัวข้อ "${s.title}" ออกแล้ว`,()=>{m.sections.splice(si,0,s);touch();renderMain()});break}
-    case 'item-add':{const s=m.sections[si];s.items.push(s.type==='attendees'?att():s.type==='agenda'?agi():act());touch();renderMain();
+    case 'item-add':{const s=m.sections[si];s.items.push(s.type==='attendees'?att():s.type==='agenda'?agi():s.type==='signoff'?sgi():act());touch();renderMain();
       const f=main.querySelectorAll(`[data-s="${si}"][data-i="${s.items.length-1}"]`)[0];f?.focus();break}
     case 'item-del':{const s=m.sections[si];const [it]=s.items.splice(ii,1);touch();renderMain();toast('ลบแถวแล้ว',()=>{s.items.splice(ii,0,it);touch();renderMain()});break}
     case 'del-mom':{const idx=store.moms.indexOf(m);store.moms.splice(idx,1);curId=null;persist(true);render();toast(`ลบ "${m.title||'MOM'}" แล้ว`,()=>{store.moms.splice(idx,0,m);curId=m.id;persist(true);render()});break}
     case 'dup':{const n=clone(m);Object.assign(n,{id:uid(),title:m.title+' (ครั้งถัดไป)',date:today(),draftedAt:0,draftVia:'',status:'draft',createdAt:Date.now(),updatedAt:Date.now(),subject:''});
-      n.sections.forEach(s=>{s.id=uid();if(s.type==='agenda')s.items.forEach(x=>{x.discussion='';x.resolution=''});if(s.type==='attendees')s.items.forEach(x=>x.present=true);if(s.type==='text')s.text=''});
+      n.sections.forEach(s=>{s.id=uid();if(s.type==='agenda')s.items.forEach(x=>{x.discussion='';x.resolution=''});if(s.type==='attendees')s.items.forEach(x=>x.present=true);if(s.type==='text')s.text='';if(s.type==='signoff')s.items.forEach(x=>{x.sig='';x.date=today()})});
       n.sections.forEach(s=>{if(s.type==='actions')s.items=s.items.filter(x=>x.task&&x.status!==STATUS[2]).concat(s.items.some(x=>x.task&&x.status!==STATUS[2])?[]:[act()])});
       store.moms.push(n);curId=n.id;view='write';flash={kind:'ok',html:'สร้างสำเนาแล้ว คงรายชื่อผู้เข้าร่วม หัวข้อวาระ และงานที่ยังไม่เสร็จไว้ให้'};persist(true);render();break}
+    case 'sig-open':openPad(si,ii);break;
+    case 'sig-clear':m.sections[si].items[ii].sig='';touch();renderMain();break;
+    case 'sig-mine':if(store.settings.mySig){m.sections[si].items[ii].sig=store.settings.mySig;touch();renderMain()}break;
+    case 'pad-clear':padClear();break;
+    case 'pad-upload':$('#sigFile').click();break;
+    case 'pad-mine':if(padT&&store.settings.mySig){const p=padT;closeLayer();const mm=cur();mm.sections[p.si].items[p.ii].sig=store.settings.mySig;touch();renderMain()}break;
+    case 'pad-save':padSave();break;
+    case 'mysig-del':delete store.settings.mySig;persist(true);openSettings();renderMain();break;
     case 'm-api':gmailApi(m);break;
     case 'm-web':openWeb(m,b.dataset.w);break;
     case 'm-eml':downloadEml(m);break;
@@ -636,6 +695,7 @@ function openSettings(){const S=store.settings,origin=IS_FILE?'http://localhost:
   <label class="fld"><span>ชื่อผู้ส่ง (ลงท้ายอีเมล)</span><input id="s-name" value="${esc(S.senderName)}" placeholder="เช่น พีรพัฒน์ ฝ่ายวางแผน"></label>
   <label class="fld"><span>คำลงท้าย</span><input id="s-close" value="${esc(S.closing)}"></label>
   <label class="fld"><span>ข้อความท้ายอีเมล</span><input id="s-reply" value="${esc(S.replyNote)}"></label>
+  <div class="fld"><span>ลายเซ็นของฉัน</span>${S.mySig?`<div style="display:flex;gap:10px;align-items:center"><img src="${esc(S.mySig)}" alt="ลายเซ็นของฉัน" style="height:52px;max-width:220px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"><button class="lnk danger" data-act="mysig-del">ลบลายเซ็นที่บันทึกไว้</button></div>`:'<span class="hint">ยังไม่ได้บันทึก ลงลายเซ็นในหัวข้อ "ลงนาม" แล้วติ๊ก "บันทึกเป็นลายเซ็นของฉัน"</span>'}</div>
   <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px">
     <h4 style="margin:0">เชื่อมต่อ Gmail เพื่อสร้างร่างอัตโนมัติ</h4>
     <label class="fld"><span>Google OAuth Client ID</span><input id="s-cid" value="${esc(S.clientId)}" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
@@ -657,6 +717,46 @@ function openBackup(){modal(`<h2>สำรองและกู้คืนข�
 function toast(text,onUndo){clearTimeout(toastT);const old=$('.toast');old&&old.remove();const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');
   t.innerHTML=`<span>${esc(text)}</span>${onUndo?'<button>เลิกทำ</button>':''}`;document.body.appendChild(t);
   if(onUndo)t.querySelector('button').onclick=()=>{onUndo();t.remove()};toastT=setTimeout(()=>t.remove(),6000)}
+
+/* ============ signature SP ============ */
+let padT=null,SP=null;
+function openPad(si,ii){padT={si,ii};const has=!!store.settings.mySig,it=cur().sections[si].items[ii];
+  modal(`<h2>ลงลายเซ็น${it.name?' · '+esc(it.name):''}</h2>
+  <p class="hint" style="margin:0">ใช้เมาส์ ปากกา หรือนิ้ววาดในกรอบ หรืออัปโหลดรูปลายเซ็นบนพื้นขาว</p>
+  <div class="padwrap"><canvas class="pad" id="pad" aria-label="พื้นที่วาดลายเซ็น"></canvas><div class="padline"></div><div class="padhint" id="padhint">เซ็นเหนือเส้นประ</div></div>
+  <div id="padmsg"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="pad-clear">ล้าง</button><button class="btn" data-act="pad-upload">อัปโหลดรูป…</button>${has?'<button class="btn" data-act="pad-mine">ใช้ลายเซ็นของฉัน</button>':''}</div>
+  <label class="chk"><input type="checkbox" id="pad-remember"${has?'':' checked'}> บันทึกเป็น "ลายเซ็นของฉัน" ไว้ใช้ครั้งต่อไป (เก็บในเครื่องนี้เท่านั้น)</label>
+  <div class="foot"><button class="btn" data-act="close">ยกเลิก</button><button class="btn pri" data-act="pad-save">ใช้ลายเซ็นนี้</button></div>`);
+  initPad()}
+function initPad(){const c=$('#pad'),r=c.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1);
+  c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);const x=c.getContext('2d');
+  SP={c,x,dpr,drawn:false,down:false,last:null};
+  const pt=e=>{const b=c.getBoundingClientRect();return{x:(e.clientX-b.left)*dpr,y:(e.clientY-b.top)*dpr}};
+  const style=()=>{x.lineCap='round';x.lineJoin='round';x.strokeStyle='#10265a';x.fillStyle='#10265a'};
+  c.addEventListener('pointerdown',e=>{e.preventDefault();c.setPointerCapture(e.pointerId);SP.down=true;SP.last=pt(e);style();
+    x.beginPath();x.arc(SP.last.x,SP.last.y,1.3*dpr,0,Math.PI*2);x.fill();markDrawn()});
+  c.addEventListener('pointermove',e=>{if(!SP.down)return;const p=pt(e),l=SP.last;
+    const w=(e.pressure&&e.pointerType==='pen'?1.2+e.pressure*2.4:2.6)*dpr;x.lineWidth=w;
+    x.beginPath();x.moveTo(l.x,l.y);const mx=(l.x+p.x)/2,my=(l.y+p.y)/2;x.quadraticCurveTo(l.x,l.y,mx,my);x.lineTo(p.x,p.y);x.stroke();SP.last=p});
+  const up=()=>{SP.down=false};c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up)}
+function markDrawn(){SP.drawn=true;const h=$('#padhint');if(h)h.hidden=true}
+function padClear(){if(!SP)return;SP.x.clearRect(0,0,SP.c.width,SP.c.height);SP.drawn=false;const h=$('#padhint');if(h)h.hidden=false}
+$('#sigFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f||!SP)return;
+  const img=new Image();img.onload=()=>{padClear();const {c,x}=SP,s=Math.min(c.width*.92/img.width,c.height*.86/img.height,1*SP.dpr*2);
+    const w=img.width*s,h=img.height*s;x.drawImage(img,(c.width-w)/2,(c.height-h)/2,w,h);URL.revokeObjectURL(img.src);
+    // turn near-white background transparent so it sits cleanly on the document
+    const d=x.getImageData(0,0,c.width,c.height),p=d.data;for(let i=0;i<p.length;i+=4){const v=(p[i]+p[i+1]+p[i+2])/3;if(v>215)p[i+3]=0;else if(v>160)p[i+3]=Math.round(p[i+3]*(215-v)/55)}x.putImageData(d,0,0);markDrawn()};
+  img.onerror=()=>{const mm=$('#padmsg');if(mm)mm.innerHTML='<div class="note bad">เปิดรูปนี้ไม่ได้ ใช้ไฟล์ PNG หรือ JPG</div>'};img.src=URL.createObjectURL(f)});
+function padExport(){const {c,x}=SP,d=x.getImageData(0,0,c.width,c.height).data;let x0=c.width,y0=c.height,x1=-1,y1=-1;
+  for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){if(d[(y*c.width+xx)*4+3]>10){if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y}}
+  if(x1<0)return '';const m=6*SP.dpr;x0=Math.max(0,x0-m);y0=Math.max(0,y0-m);x1=Math.min(c.width-1,x1+m);y1=Math.min(c.height-1,y1+m);
+  const w=x1-x0+1,h=y1-y0+1,sc=Math.min(1,160/h,480/w),o=document.createElement('canvas');o.width=Math.max(1,Math.round(w*sc));o.height=Math.max(1,Math.round(h*sc));
+  const ox=o.getContext('2d');ox.imageSmoothingQuality='high';ox.drawImage(c,x0,y0,w,h,0,0,o.width,o.height);return o.toDataURL('image/png')}
+function padSave(){if(!pad||!padT)return;const url=SP.drawn?padExport():'';
+  if(!url){$('#padmsg').innerHTML='<div class="note bad">ยังไม่มีลายเซ็นในกรอบ</div>';return}
+  const remember=$('#pad-remember')?.checked,p=padT,m=cur();closeLayer();SP=null;padT=null;
+  m.sections[p.si].items[p.ii].sig=url;if(remember)store.settings.mySig=url;touch();renderMain();toast(remember?'ใส่ลายเซ็นแล้ว และบันทึกเป็นลายเซ็นของฉัน':'ใส่ลายเซ็นแล้ว')}
 
 /* ============ boot ============ */
 render();
