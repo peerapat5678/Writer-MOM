@@ -1,0 +1,4 @@
+# Only the endpoint scripts are reachable over HTTP
+<FilesMatch "^(_bootstrap|config|config\.example)\.php$">
+  Require all denied
+</FilesMatch>

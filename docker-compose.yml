@@ -1,0 +1,26 @@
+# Local / test environment: docker compose up -d  ->  http://localhost:8080
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: mom_writer
+      DB_USER: mom
+      DB_PASS: mom-local-pass
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root-local-pass
+      MYSQL_DATABASE: mom_writer
+      MYSQL_USER: mom
+      MYSQL_PASSWORD: mom-local-pass
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - mom-db:/var/lib/mysql
+volumes:
+  mom-db:

@@ -9,3 +9,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Local database credentials
+api/config.php
